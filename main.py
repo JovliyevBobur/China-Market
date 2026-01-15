@@ -14,6 +14,7 @@ import asyncio
 from typing import Dict, Any
 
 from aiogram import Bot, Dispatcher, F
+from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove, ContentType
@@ -225,7 +226,7 @@ async def main() -> None:
     """
 
     config = load_config()
-    bot = Bot(token=config.token, parse_mode="HTML")
+    bot = Bot(token=config.token, default=DefaultBotProperties(parse_mode="HTML"))
     dp = Dispatcher()
 
     # Handlerlarni ro'yxatdan o'tkazish

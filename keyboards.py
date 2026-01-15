@@ -125,35 +125,33 @@ def regions_keyboard() -> ReplyKeyboardMarkup:
     Viloyatlar uchun ReplyKeyboard.
     Har bir qatorga 2-3 tadan viloyat nomlari joylashtiriladi.
     """
-
-    kb = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboard = []
     row = []
     for i, region in enumerate(UZB_REGIONS.keys(), start=1):
         row.append(KeyboardButton(text=region))
         if i % 2 == 0:
-            kb.keyboard.append(row)
+            keyboard.append(row)
             row = []
     if row:
-        kb.keyboard.append(row)
-    return kb
+        keyboard.append(row)
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
 def districts_keyboard(region_name: str) -> ReplyKeyboardMarkup:
     """
     Tanlangan viloyatga tegishli tumanlarni chiqaruvchi ReplyKeyboard.
     """
-
-    kb = ReplyKeyboardMarkup(resize_keyboard=True)
     districts = UZB_REGIONS.get(region_name, [])
+    keyboard = []
     row = []
     for i, district in enumerate(districts, start=1):
         row.append(KeyboardButton(text=district))
         if i % 2 == 0:
-            kb.keyboard.append(row)
+            keyboard.append(row)
             row = []
     if row:
-        kb.keyboard.append(row)
-    return kb
+        keyboard.append(row)
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
 # ============================
@@ -185,10 +183,7 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
     """
     Ro'yxatdan o'tgan foydalanuvchi uchun asosiy menyu.
     """
-
-    kb = ReplyKeyboardMarkup(resize_keyboard=True)
-
-    kb.keyboard = [
+    buttons = [
         [
             KeyboardButton(
                 text="✅ 👗 Kiyim-kechak, sport kiyimlari, ichki kiyimlar"
@@ -244,7 +239,7 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
         ],
     ]
 
-    return kb
+    return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
 
 
 # ============================
