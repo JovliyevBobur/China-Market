@@ -11,6 +11,7 @@ Talablar:
 """
 
 import asyncio
+import logging
 from typing import Dict, Any
 
 from aiogram import Bot, Dispatcher, F
@@ -225,6 +226,7 @@ async def main() -> None:
     Botni ishga tushiruvchi asosiy funksiya.
     """
 
+    logging.basicConfig(level=logging.INFO)
     config = load_config()
     bot = Bot(token=config.token, default=DefaultBotProperties(parse_mode="HTML"))
     dp = Dispatcher()
