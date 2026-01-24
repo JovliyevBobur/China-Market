@@ -67,6 +67,8 @@ class ProfileStates(StatesGroup):
     editing_phone = State()
     editing_email = State()
     editing_language = State()
+    entering_name = State()  # For profile handler
+    entering_phone = State()  # For profile handler
     
     # Address
     editing_address = State()
@@ -130,6 +132,8 @@ class SupportStates(StatesGroup):
     
     # Message
     entering_message = State()
+    waiting_message = State()  # For support handler
+    waiting_feedback = State()  # For feedback handler
     
     # Order related
     selecting_order = State()

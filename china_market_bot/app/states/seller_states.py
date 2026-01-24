@@ -80,6 +80,27 @@ class SellerStates(StatesGroup):
     payout_details = State()
 
 
+class ProductStates(StatesGroup):
+    """
+    Product management states for seller.
+    """
+    
+    # Category selection
+    selecting_category = State()
+    
+    # Product details
+    entering_name = State()
+    entering_description = State()
+    entering_price = State()
+    entering_quantity = State()
+    
+    # Images
+    uploading_images = State()
+    
+    # Confirmation
+    confirming = State()
+
+
 class SellerProductStates(StatesGroup):
     """
     Product management states (alternative grouping).
@@ -150,3 +171,7 @@ class SellerOrderStates(StatesGroup):
     # Issues
     reporting_issue = State()
     issue_description = State()
+
+
+# Aliases for compatibility
+SellerRegistrationStates = SellerStates

@@ -160,7 +160,7 @@ async def main() -> None:
     setup_logging()
     
     logger.info("=" * 50)
-    logger.info("🛒 China Market Bot")
+    logger.info("🛒 Vezer Shop Bot")
     logger.info("=" * 50)
     
     # Setup middlewares and routers
