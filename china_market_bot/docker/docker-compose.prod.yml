@@ -1,0 +1,163 @@
+# ==========================================
+# 🐳 China Market Bot - Docker Compose
+# Production Configuration
+# ==========================================
+
+version: '3.8'
+
+services:
+  # ==========================================
+  # Bot Service
+  # ==========================================
+  bot:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: china_market_bot_prod
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - LOG_LEVEL=INFO
+      - DEBUG=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - bot_network
+    volumes:
+      - bot_logs:/app/logs
+      - bot_media:/app/media
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # ==========================================
+  # PostgreSQL Database
+  # ==========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: china_market_db_prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - bot_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # ==========================================
+  # Redis Cache
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: china_market_redis_prod
+    restart: always
+    command: >
+      redis-server 
+      --appendonly yes 
+      --maxmemory 512mb 
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - bot_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ==========================================
+  # Nginx Reverse Proxy (for webhooks)
+  # ==========================================
+  nginx:
+    image: nginx:alpine
+    container_name: china_market_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - bot_media:/var/www/media:ro
+    depends_on:
+      - bot
+    networks:
+      - bot_network
+    profiles:
+      - webhook
+
+  # ==========================================
+  # Backup Service
+  # ==========================================
+  backup:
+    image: postgres:15-alpine
+    container_name: china_market_backup
+    restart: "no"
+    environment:
+      PGHOST: postgres
+      PGUSER: ${DB_USER}
+      PGPASSWORD: ${DB_PASSWORD}
+      PGDATABASE: ${DB_NAME}
+    volumes:
+      - ./backups:/backups
+    command: >
+      sh -c "pg_dump -Fc > /backups/backup_$$(date +%Y%m%d_%H%M%S).dump"
+    depends_on:
+      - postgres
+    networks:
+      - bot_network
+    profiles:
+      - backup
+
+# ==========================================
+# Volumes
+# ==========================================
+volumes:
+  postgres_data:
+    name: china_market_postgres_prod
+  redis_data:
+    name: china_market_redis_prod
+  bot_logs:
+    name: china_market_logs_prod
+  bot_media:
+    name: china_market_media_prod
+
+# ==========================================
+# Networks
+# ==========================================
+networks:
+  bot_network:
+    name: china_market_network_prod
+    driver: bridge
