@@ -48,10 +48,19 @@ class Settings(BaseSettings):
     db_name: str = Field(default="china_market", description="Database name")
     db_user: str = Field(default="postgres", description="Database user")
     db_password: str = Field(default="", description="Database password")
+    database_uri: Optional[str] = Field(default=None, validation_alias="DATABASE_URL", description="Direct Database URL")
     
     @property
     def database_url(self) -> str:
         """Get async database URL."""
+        if self.database_uri:
+            uri = self.database_uri
+            if uri.startswith("postgres://"):
+                return uri.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif uri.startswith("postgresql://"):
+                return uri.replace("postgresql://", "postgresql+asyncpg://", 1)
+            return uri
+            
         return (
             f"postgresql+asyncpg://{self.db_user}:{self.db_password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
@@ -60,6 +69,12 @@ class Settings(BaseSettings):
     @property
     def database_url_sync(self) -> str:
         """Get sync database URL for Alembic."""
+        if self.database_uri:
+            uri = self.database_uri
+            if uri.startswith("postgres://"):
+                return uri.replace("postgres://", "postgresql://", 1)
+            return uri
+            
         return (
             f"postgresql://{self.db_user}:{self.db_password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
@@ -72,10 +87,14 @@ class Settings(BaseSettings):
     redis_port: int = Field(default=6379, description="Redis port")
     redis_db: int = Field(default=0, description="Redis database number")
     redis_password: Optional[str] = Field(default=None, description="Redis password")
+    redis_uri: Optional[str] = Field(default=None, validation_alias="REDIS_URL", description="Direct Redis URL")
     
     @property
     def redis_url(self) -> str:
         """Get Redis URL."""
+        if self.redis_uri:
+            return self.redis_uri
+            
         auth = f":{self.redis_password}@" if self.redis_password else ""
         return f"redis://{auth}{self.redis_host}:{self.redis_port}/{self.redis_db}"
     
@@ -166,6 +185,7 @@ class Settings(BaseSettings):
     webhook_path: str = Field(default="/webhook", description="Webhook path")
     webhook_port: int = Field(default=8443, description="Webhook port")
     use_webhook: bool = Field(default=False, description="Use webhook instead of polling")
+    webapp_url: str = Field(default="https://chinamarket.uz", description="Web app base URL")
     
     # ==========================================
     # Development Configuration

@@ -102,12 +102,16 @@ def get_products_keyboard(
         else:
             text = f"📦 {product.name[:25]}... - {price} so'm"
         
+        # Determine redirect URL
+        if getattr(product, "external_url", None):
+            url = product.external_url
+        else:
+            from app.config import settings
+            url = f"{settings.webapp_url}/product/{getattr(product, 'slug', product.id)}"
+            
         builder.button(
             text=text,
-            callback_data=ProductCallback(
-                action="view",
-                product_id=product.id,
-            ).pack(),
+            url=url,
         )
     
     # 1 product per row

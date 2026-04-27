@@ -62,6 +62,19 @@ async def create_initial_categories():
     logger.info(f"Created {len(categories)} categories!")
 
 
+async def alter_tables():
+    """Safely apply schema updates for existing tables."""
+    logger.info("Applying schema updates...")
+    async with engine.begin() as conn:
+        try:
+            # Add external_url to products if missing
+            await conn.execute(text("ALTER TABLE products ADD COLUMN IF NOT EXISTS external_url VARCHAR(500);"))
+        except Exception as e:
+            logger.warning(f"Could not apply schema updates: {e}")
+            
+    logger.info("Schema updates applied!")
+
+
 async def main():
     """Main initialization function."""
     logger.info("=" * 50)
@@ -74,6 +87,9 @@ async def main():
     try:
         # Create tables
         await create_tables()
+        
+        # Apply schema updates to existing tables
+        await alter_tables()
         
         # Create initial data
         await create_initial_categories()

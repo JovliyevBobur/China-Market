@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacksPlan]
+aptPkgs = ["libpq-dev", "postgresql-client"]
+
+[deploy]
+startCommand = "bash railway_start.sh"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10

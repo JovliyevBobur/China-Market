@@ -166,6 +166,11 @@ class Product(Base, IDMixin, TimestampMixin):
         nullable=True,
         comment="Video URL",
     )
+    external_url: Mapped[Optional[str]] = mapped_column(
+        String(500),
+        nullable=True,
+        comment="External website URL for direct redirect",
+    )
     
     # Status
     is_active: Mapped[bool] = mapped_column(
