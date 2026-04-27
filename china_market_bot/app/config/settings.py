@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     # ==========================================
     # Bot Configuration
     # ==========================================
-    bot_token: str = Field(default="8097749020:AAEo_d-fdSCyC-bPzRQJtHq3tgftWoUbF2w", description="Telegram Bot Token from @BotFather")
+    bot_token: str = "8097749020:AAEo_d-fdSCyC-bPzRQJtHq3tgftWoUbF2w"
     admin_ids: List[int] = Field(default_factory=list, description="List of admin Telegram IDs")
     bot_username: str = Field(default="china_market_bot", description="Bot username")
     
